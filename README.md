@@ -2,8 +2,8 @@
 Application to create replication packages
 
 
-# Dependencies
+## Dependencies
 PySimpleGUI
 
-# Version
+## Version
 Python >= 3.6
