@@ -62,7 +62,7 @@ It is possible to use a [Singularity](https://sylabs.io/singularity/) container 
         exit 1
     fi
     cd "$1"
-    python3 "$12"
+    python3 "$2"
 ```
 
 **R**
