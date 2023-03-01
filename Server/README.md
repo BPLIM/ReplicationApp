@@ -75,21 +75,23 @@ instructions:
 **Python**
 ```
 %runscript
-    if [ $# -ne 1 ]; then
-        echo "Please provide the main script"
+    if [ $# -ne 2 ]; then
+        echo "Please provide the main path and main script"
         exit 1
     fi
-    python3 "$1"
+    cd "$1"
+    python3 "$2"
 ```
 
 **R**
 ```
 %runscript
-    if [ $# -ne 1 ]; then
-        echo "Please provide the main script"
+    if [ $# -ne 2 ]; then
+        echo "Please provide the main path and main script"
         exit 1
     fi
-    Rscript "$1"
+    cd "$1"
+    Rscript "$2"
 ```
 
 ### Researcher
