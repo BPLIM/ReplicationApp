@@ -22,7 +22,7 @@ def convertFileToBase64(fileName: str) -> str:
     return encoded
 
 
-# https://stackoverflow.com/questions/9727673/list-directory-tree-structure-in-python
+# based on https://stackoverflow.com/questions/9727673/list-directory-tree-structure-in-python
 
 # prefix components:
 space =  '    '
@@ -38,6 +38,9 @@ def tree(dirPath: Path, prefix: str=''):
     with each line prefixed by the same characters
     """    
     contents = list(dirPath.iterdir())
+    dirs = sorted([path for path in contents if path.is_dir()])
+    files = sorted([path for path in contents if not path.is_dir()])
+    contents = files + dirs
     # contents each get pointers that are ├── with a final └── :
     pointers = [tee] * (len(contents) - 1) + [last]
     for pointer, path in zip(pointers, contents):
