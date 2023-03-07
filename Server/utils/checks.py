@@ -122,7 +122,7 @@ def checkMainScript(inputText: str, mainFolder: str) -> Tuple[bool, List[str]]:
         errorMessages.append(f'"{inputText}" is not a valid file')
     # Check if file is under main folder
     if mainFolder:
-        flagFileUnderMain = isFileUnderMain(inputText, mainFolder, main=True)
+        flagFileUnderMain = isFileUnderMain(inputText, mainFolder)
         flagErrors.append(flagFileUnderMain)
         if not flagFileUnderMain:
             errorMessages.append(f'"{inputText}" not in main folder')

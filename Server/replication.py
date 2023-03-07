@@ -327,12 +327,8 @@ class Replication(object):
         """Create configure script
         """
         if self._mainScript.endswith(".do"):
-            self._createStataProfile(
-                os.path.join(
-                    self._replicationPath,
-                    'profile.do'
-                )
-            ) 
+            head, _ = os.path.split(self._mainScript)
+            self._createStataProfile(os.path.join(head, 'profile.do'))
 
     def _createStataProfile(self, outfile: str) -> None:
         """Create Stata profile do
