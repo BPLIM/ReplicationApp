@@ -24,7 +24,7 @@ Inside every researcher's project  work area there is a ".desktop" file, which l
 │   ├── run_replication.desktop
 │   └── Submissions/
 |       ├──  master.do
-|       └──  do_files
+|       └──  do_files/
 |           ├──  data_creation.do
 |           ├──  dissertation.do
 |           ├──  dissertation_interest.do
@@ -121,7 +121,7 @@ Other file created created by the application is *tree.txt*, which contains the 
 Finally, the last file that the application creates is the configuration file to run this particular replication. Since we are using Stata, our configuration file is named *profile.do* and is placed on the same directory of the master script. The contents of this file in our mock example are displayed below:
 
 
-```{stata}
+```stata
 *********************************************************
 *            Initialization
 *********************************************************
@@ -178,3 +178,115 @@ adopath ++ "/bplimext/projects/pxxx_BPLIM/tools"
 ```
 
 By placing the file next to the master script, Stata runs *profile.do* prior to running the master do-file, which we can use to define settings and globals. As you have probably noticed, the paths for globals `path_rep`, `path_source*` and command `adopath++` are based on the project and input fields of the application. 
+
+Researchers must use the globals defined in *profile.do* in their scripts when submitting a replication. It is **very important** that you specify globals related to data directories (**path_source**, **path_source_p** and **path_source_i**) when reading data, either modified or not. The globals for the type of modified dataset are also **very important**. Lets look at a snippet of the code used in this particular replication, namely on file *data_creation.do*:
+
+```
+use "${path_source_p}/PM110_BBS_${M1}_MBNK_JAN2000DEC2020_JUN21_ASSET_V01.dta", clear
+```
+
+The researcher is using perturbed data, so she/he uses the global **M1** in the name of the file and the global **path_source_p**, which stands for the directory for modified data. Note that for modified data, the global **path_source_p** should always be used, because all types of modified datasets are placed in that directory. As for the type of modified data, it varies: (i) perturbed - global **M1**; (ii) shuffled - global **M2**; (iii) randomized - global **M3**; (iv) dummy - global **M4**. These configurations make the replication process much faster and smoother, since all BPLIM staff has to do, in order to run the scripts on the original data, is to change the globals in the configuration file.
+
+The other **important** global defined in *profile.do* is **path_rep**, which is the directory of the replication area. The researcher may use this global to change the working directory to where the master script is located:
+
+```stata
+cd ${path_rep}
+
+/*
+code
+code
+*/
+```
+
+Every file created during the replication must be under this directory. If we have scripts in sub-directories, we simply navigate using relative paths and run those scripts. In our mock example:
+
+```stata
+cd ${path_rep}
+
+cd do_files
+do data_creation
+```
+
+Also, please note that every folder and sub-folders under the base path of the replication (first field of the application) is copied to the replication area. So, for example, if you have the following structure:
+
+```
+/bplimext/projects/pxxx_BPLIM/
+....
+│
+├── work_area/
+│   ├── run_replication.desktop
+│   └── Submissions/
+|       ├──  master.do
+|       ├──  data/
+|       ├──  do_files/
+|       |   ├──  data_creation.do
+|       |   ├──  dissertation.do
+|       |   ├──  dissertation_interest.do
+|       |   ├──  dissertation_extra.do
+|       |   ├──  dissertation_means.do
+|       |   └──  dissertation_until2017.do
+|       └──  results/
+│
+...
+```
+
+The directories *data* and *results* will also be copied the replication area. So please make sure to capture any possible errors when creating your directory structure inside the scripts. In our case, and for Stata in particular, we would do the following in our master script:
+
+```stata
+cd ${path_rep}
+
+// path for intermediate datasets
+capture mkdir data 
+// path for results
+capture mkdir results
+
+cd do_files
+do data_creation
+```
+
+In **Python** we can use `try/except` blocks and in **R** `tryCatch()`. Also, keep in mind that during the replication, you may use absolute or relative paths. If using absolute paths, it is imperative that you use the globals defined in the profile and the master script. We will illustrate this process using *master.do* and *data_creation.do*.
+
+**master.do**
+
+```stata
+cd ${path_rep}
+
+global path_data "${path_rep}/data"
+global path_results "${path_rep}/results"
+
+capture mkdir ${path_data}
+capture mkdir ${path_results}
+
+cd do_files
+do data_creation
+```
+
+**data_creation.do** - absolute paths
+
+```stata
+use "${path_source_p}/PM110_BBS_${M1}_MBNK_JAN2000DEC2020_JUN21_ASSET_V01.dta", clear
+
+/*
+code to modify data
+*/
+
+// save intermediate data
+save "${path_data}/bbs_intermediate", replace
+```
+
+**data_creation.do** - relative paths
+
+```stata
+use "${path_source_p}/PM110_BBS_${M1}_MBNK_JAN2000DEC2020_JUN21_ASSET_V01.dta", clear
+
+/*
+code to modify data
+*/
+
+// save intermediate data
+save "../data/bbs_intermediate", replace
+```
+
+Whether the researcher uses relative paths or absolute paths, BPLIM staff only needs to change the file *profile.do* in order to run the replication with other settings. In the case of absolute paths, they must always be specified in terms of previously defined globals, at least **path_rep**. 
+
+
