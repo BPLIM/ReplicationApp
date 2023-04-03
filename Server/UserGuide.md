@@ -290,3 +290,125 @@ save "../data/bbs_intermediate", replace
 Whether the researcher uses relative paths or absolute paths, BPLIM staff only needs to change the file *profile.do* in order to run the replication with other settings. In the case of absolute paths, they must always be specified in terms of previously defined globals, at least **path_rep**. 
 
 
+If the researcher uses **R** instead, the application creates a configuration named *config.R*, in the same directory as the main script. In our current example, the file would have the following content:
+
+```R
+print("## Running config.R file ##")
+sessionInfo()
+
+##### Path for replication #####
+# Base path for replications
+path_rep <- "/bplimext/projects/pxxx_BPLIM/work_area/Submissions/Replications/Rep001"  
+
+#### Paths for data ####
+# Set the path for non perturbed data source
+path_source <- "/bplimext/projects/pxxx_BPLIM/initial_dataset"
+# Set the path for perturbed data source
+path_source_p <- "/bplimext/projects/pxxx_BPLIM/initial_dataset/modified"
+# Set the path for intermediate data source
+path_source_i <- "/bplimext/projects/pxxx_BPLIM/initial_dataset/intermediate"
+
+# Globals for type of modified dataset
+# Perturbed
+M1 <- "P"
+# Shuffle
+M2 <- "S"
+# Randomized
+M3 <- "R"
+# Dummy 
+M4 <- "D"
+
+
+################### Example: using non-modified and modified data sets #####################
+# Anonymized (CB_A_YFRM_2010_JUN21_ROSTO_V01.dta)
+# dataA <- stringr::str_interp("${path_source}/CB_A_YFRM_2010_JUN21_ROSTO_V01.dta")
+#
+# Perturbed (CRC_P_MFRM_2010_APR19_COBR_V01.dta)
+# dataP <- stringr::str_interp("${path_source_p}/CRC_${M1}_MFRM_2010_APR19_COBR_V01.dta")
+#
+# Shuffle (PE056_S_rejected_applications.dta)
+# dataS <- stringr::str_interp("${path_source_p}/PE056_${M2}_rejected_applications.dta")
+#
+# Randomized (CRC_R_MFRMBNK_2007_APR19_CO_V01.dta)
+# dataR <- stringr::str_interp("${path_source_p}/CRC_${M3}_MFRMBNK_2007_APR19_CO_V01.dta")
+#
+# Dummy (SLB_D_YBNK_20102018_OCT20_QA1_V01.dta)
+# dataD <- stringr::str_interp("${path_source_p}/SLB_${M4}_YBNK_20102018_OCT20_QA1_V01.dta")
+#############################################################################################
+
+# User Defined libraries
+additionalPaths <- 
+  c(
+    ...
+  )
+.libPaths(additionalPaths)
+rm(additionalPaths)
+```
+
+Then, in the master script, one needs to run the configuration file, as displayed in the following code snippet:
+
+
+```R
+source('config.R')
+setwd(path_rep)
+
+```
+
+Please note that if your master script is not directly inside **path_rep**, perhaps in a folder below named *scripts*, you should position yourself that directory, by adding a line to the previous snippet:
+
+```R
+source('config.R')
+setwd(path_rep)
+setwd("scripts")
+```
+
+So, the **Stata** example would look like the following in **R** (using absolute and relative paths again):
+
+**master.R**
+
+```R
+setwd(path_rep)
+
+path_data <- stringr::str_interp("${path_rep}/data")
+path_results <- stringr::str_interp("${path_rep}/results")
+
+dir.create(path_data)
+dir.create(path_results)
+
+setwd("do_files")
+source("data_creation.R")
+```
+
+**data_creation.R** - absolute paths
+
+```R
+library(haven)
+
+dataP <- stringr::str_interp("${path_source_p}/PM110_BBS_${M1}_MBNK_JAN2000DEC2020_JUN21_ASSET_V01.dta")
+df_base <- read_stata(dataP) 
+df <- as.data.frame(df_base)
+
+####
+# code to modify data
+#####
+
+# save intermediate data
+write_dta(df, file.path(path_data, "bbs_intermediate.dta"))
+```
+
+**data_creation.R** - relative paths
+
+```R
+library(haven)
+
+dataP <- stringr::str_interp("${path_source_p}/PM110_BBS_${M1}_MBNK_JAN2000DEC2020_JUN21_ASSET_V01.dta")
+df_base <- read_stata(dataP) 
+df <- as.data.frame(df_base)
+
+####
+# code to modify data
+#####
+
+# save intermediate data
+write_dta(df, "../data/bbs_intermediate.dta")
+```
