@@ -9,6 +9,7 @@ from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Union, Tuple, Generator, Any
 from templates.stata import createProfile
+from templates.rlang import createConfigFile as createRConfigFile
 from utils.misc import tree
 
 # Gobals
@@ -326,9 +327,34 @@ class Replication(object):
     def _createConfigFile(self) -> None:
         """Create configure script
         """
+        head, _ = os.path.split(self._mainScript)
         if self._mainScript.endswith(".do"):
-            head, _ = os.path.split(self._mainScript)
             self._createStataProfile(os.path.join(head, 'profile.do'))
+        elif self._mainScript.endswith(".R"):
+            self._createRconfig(os.path.join(head, 'config.R'))
+
+    def _createRconfig(self, outfile: str) -> None:
+        """Create R configuration file
+
+        Parameters
+        ----------
+        outfile : str
+            path to profile do
+        """
+        dataPaths = self._getInitialDataPaths(
+            mainFolderPath=self._mainFolderPath
+        )
+        createRConfigFile(
+            replicationPath=self._replicationPath,
+            outFile=outfile,
+            pathSource=dataPaths[0],
+            pathSourceModified=dataPaths[1],
+            pathSourceIntermediate=dataPaths[2],
+            toolsPaths=[
+                *self._externalTools,
+                *self._userDefinedTools
+            ]
+        )
 
     def _createStataProfile(self, outfile: str) -> None:
         """Create Stata profile do
