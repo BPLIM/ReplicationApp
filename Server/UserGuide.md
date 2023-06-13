@@ -1,9 +1,9 @@
 # Replication Guide
 
-This document serves as a guide for replications by external researchers. It is mainly targeted at researchers that work with BPLIM's modified datasets, but it is not exclusive to this type of researchers. Researchers that do not work with modified data may still want to use the application (see section 1) to ensure full reproducibility of their results.
+This document serves as a guide for replications by external researchers. It is mainly targeted at researchers that work with BPLIM's modified datasets, but it may be of use to other researchers. Researchers that do not work with modified data may still want to use the application (see section 1) to ensure full reproducibility of their results.
 
-Researchers use modified datasets to test and prepare their code. Once they are done with coding they should request that BPLIM replicates the analysis on the original data. 
-This replication process has two phases. The first phase is the responsibility of the researcher, who must confirm that the process runs flawlessly in a single execution. Ideally this should be done using BPLIM's Replication Application. If this phase is successful, researchers should communicate this outcome to BPLIM staff and request the code to be run on the original data. Researchers working only with non-modified data should abstain from making the aforementioned request (second phase). After verifying that the code has indeed run successfully and that no file has been tampered with upon conclusion of the first phase, BPLIM staff will run the researcher's scripts on the original data.
+Researchers use modified datasets to test and prepare their code. Once they are done with coding they should request that BPLIM staff replicate the analysis on the original data. 
+This replication process has two phases. The first phase is the responsibility of the researcher, who must confirm that the process runs flawlessly in a single execution. Ideally this should be done using BPLIM's Replication Application. If this phase is successful, researchers should communicate this outcome to BPLIM staff by email and request the code to be run on the original data. Researchers working only with non-modified data should abstain from making the aforementioned request (second phase). After verifying that the code has indeed run successfully and that no file has been tampered with, BPLIM staff will run the researcher's scripts on the original data.
 
 ## 1. Replication Application
 
@@ -21,7 +21,7 @@ Inside every researcher's project  work area there is a ".desktop" file, which l
 │   └── ...
 │
 ├── work_area/
-│   ├── run_replication.desktop
+│   ├── ReplicationApp.desktop
 │   └── Submissions/
 |       ├──  master.do
 |       └──  do_files/
@@ -39,21 +39,27 @@ Inside every researcher's project  work area there is a ".desktop" file, which l
 
 [^1]: Although this is a mock project, we are actually using real data and code from a student who used BPLIM data in her Masters Dissertation. In this project the student only worked with modified data.
 
+The *initial_dataset* directory is where BPLIM staff places the data for researchers, which only has read permissions. It may have two subdirectories, *modified* and *intermediate*, the former for modified data[^2] and the latter for intermediate datasets created by the researcher[^3]. 
+
+[^2]: For a more detailed description of working with modified data at BPLIM, please see the [Guide for Researchers](https://msites-dee-bplim-prd.azurewebsites.net/sites/default/files/guide_for_researchers_v202210.pdf).
+
+[^3]: If there are some processes that take a long time to run, usually when creating intermediate data, researchers may ask to move these data files to the *intermediate* subdirectory.
+
 If the researcher clicks on the file *ReplicationApp.desktop*, the application is launched, displaying the following dialog box:
 
 <p style="text-align:center;"><img src="https://user-images.githubusercontent.com/51088103/223689793-8f2dae41-634d-45f0-ac93-2c010a2f27f7.PNG"  width="60%" height="30%"></p>
 
-The first step is to select the source path for the replication, i.e., the directory where the researcher placed his/her scripts to run the analysis. This directory may include other directories and sub-directories. Please note that every directory and sub-directory under the selected path will be copied to the **replication area**. If we click the `browse` button, a dialog box opens to enable the user to select the path. In our mock example, the path is *"/bplimext/projects/pxxx_BPLIM/work_area/Submissions"*:  
+The first step is to select the main path for the replication, i.e., the directory where the researcher placed the scripts to run the analysis. This directory may include other directories and sub-directories. Please note that every directory and sub-directory under the selected path will be copied to the **replication area**. If we click the `browse` button, a dialog box opens to enable the user to select the path. In our mock example, the path is *"/bplimext/projects/pxxx_BPLIM/work_area/Submissions"*:  
 
 <p style="text-align:center;"><img src="https://user-images.githubusercontent.com/51088103/223689796-028b18b3-00b5-44bc-bec0-ee1e81a429b4.PNG"  width="60%" height="30%"></p>
 
-After selecting the main path, we have to select the main script. This is the entry point of the replication. It is the file that runs the replication and calls dependencies in case they exist. The file must be under the main path (not necessarily the first level) selected in the previous set, otherwise the replication will not run. Only **Stata**, **Python**, **R** and **Julia** file extensions are allowed in this field:
+After selecting the main path, we have to select the main script. This is the entry point of the replication. It is the file that runs the replication and calls dependencies in case they exist. The file must be under the main path (not necessarily the first level) selected in the previous step, otherwise the replication will not run. Only **Stata**, **Python**, **R** and **Julia** file extensions are allowed in this field:
 
 <p style="text-align:center;"><img src="https://user-images.githubusercontent.com/51088103/223689800-c82d5932-79db-4d19-a4ae-296a1111361c.PNG"  width="60%" height="30%"></p>
 
 <p style="text-align:center;"><img src="https://user-images.githubusercontent.com/51088103/223689804-5b401e5a-25d2-471a-af02-32548a51042a.PNG"  width="60%" height="30%"></p>
 
-In the third field we must select the container image used to run the replication. Containers are a great way to control your software environment and make it easier to ensure (not completely) that your research is reproducible. For more information on containers and how we use them at BPLIM, please follow this [link](). In the context of the application, the user only has to select the **Singularity Image** (\*.sif file), usually placed by BPLIM staff in *".../tools/_containers/"*:
+In the third field we must select the container image used to run the replication. Containers are a great way to control the software environment and make it easier to ensure (not completely) that your research is reproducible. For more information on containers and how we use them at BPLIM, please follow this [link](). In the context of the application, the user only has to select the **Singularity Image** (\*.sif file), usually placed by BPLIM staff in *".../tools/_containers/"*:
 
 <p style="text-align:center;"><img src="https://user-images.githubusercontent.com/51088103/223689765-1e8c84c9-e411-4b01-9f17-865bc21a706f.PNG"  width="60%" height="30%"></p>
 
@@ -71,13 +77,13 @@ In the fifth field we provide the dependencies that are going to be used in the 
 
 <p style="text-align:center;"><img src="https://user-images.githubusercontent.com/51088103/223689789-88073f3e-6909-40ff-a2cd-17e52adf9dad.PNG"  width="60%" height="30%"></p>
 
-Finally, we can select directories for tools. By tools we mean programs, modules or packages used by the researcher in the replication. The application creates a configuration file that will point to these directories in order to enable the researcher to access them. The user may select one or more directories. Two cases are possible: if the directory specified is under the main path selected in the first field, the entire directory is copied to the replication area, although its size cannot exceed 10MB; otherwise, the configuration file will simply point to that path, not copying its contents to the replication area. In the example at hand, only the latter applies, since the ado-files needed are all placed outside the base replication path:
+Finally, we can select directories for tools. By tools we mean programs, modules or packages used by the researcher in the replication. The application creates a configuration file that will point to these directories in order to have the tools available in the runtime environment. The user may select one or more directories. Two cases are possible: if the directory specified is under the main path selected in the first field, the entire directory is copied to the replication area, although its size cannot exceed 10MB; otherwise, the configuration file will simply point to that path, not copying its contents to the replication area. In the example at hand, only the latter applies, since the ado-files needed are all placed outside the base replication path:
 
 <p style="text-align:center;"><img src="https://user-images.githubusercontent.com/51088103/223708507-2b2bfbc9-ad0d-42da-8639-796d227e80d6.PNG"  width="60%" height="30%"></p>
 
 <p style="text-align:center;"><img src="https://user-images.githubusercontent.com/51088103/223708516-a37af1e4-f25b-48e2-90c5-120111476713.PNG"  width="60%" height="30%"></p>
 
-With every field filled, we click the **Run** button to run the replication. If there are no errors and warnings, the replication should start immediately. However, If any warning is found, the application will prompt a dialog box asking the user if he or she wishes to proceed with the replication. For example, if we did not specify a definition file, we would get a warning:
+With every field correctly filled, we click the **Run** button to run the replication. If there are no errors and warnings, the replication should start immediately. However, If any warning is found, the application will prompt a dialog box asking the user if he/she wishes to proceed with the replication. For example, if we did not specify a definition file, we would get a warning:
 
 <p style="text-align:center;"><img src="https://user-images.githubusercontent.com/51088103/223708519-907b5a8e-d13f-428c-b36b-6477024bf743.PNG"  width="60%" height="30%"></p>
 
@@ -85,7 +91,9 @@ We may proceed with the replication by clicking **Yes**. The situation is differ
 
 <p style="text-align:center;"><img src="https://user-images.githubusercontent.com/51088103/223708523-e268f238-2948-471c-96c1-e3c83aa16e06.PNG"  width="60%" height="30%"></p>
 
-The user will have to provide a valid file in the main script field in order to run the replication. On the other hand, if every field is correctly filled, the replication will start and the application will show a counter, displaying the elapsed time since the replication started:
+The user will have to provide a valid file in the main script field in order to run the replication. 
+
+If every field is correctly filled, the replication will start and the application will show a counter, displaying the elapsed time since the replication started:
 
 <p style="text-align:center;"><img src="https://user-images.githubusercontent.com/51088103/223708529-948e9024-6086-46be-bf19-3603098c6701.PNG"  width="60%" height="30%"></p>
 
@@ -97,24 +105,23 @@ The **Status** field has two possible outcomes: **Finished** - when the replicat
 
 But what is the benefit of running the replication through the application instead of, for example, running it directly in Stata? Besides being a BPLIM product that helps us expedite the replication process, the application presents advantages for researchers. In order to see these advantages, we must inspect the outputs of the application. When we click the **Run** button, the application goes through a series of steps prior to actually running the code. 
 
-First, if it does not exist, the *Replications* directory is created under the base path of the replication - in our case, *"/bplimext/projects/pxxx_BPLIM/work_area/Submissions"*. Under the *Replications* directory, the directory *Rep001* will be automatically created. Please note that the number included in the directory name will be automatically updated if there are already other replications inside *Replications*. *"/bplimext/projects/pxxx_BPLIM/work_area/Submissions/Replications/Rep001"* is what we previously mentioned as the replication area. The structure of the directory for our example is displayed in the image below (after the replication finishes):
+First, if it does not exist, the *Replications* directory is created under the main path of the replication - in our case, *"/bplimext/projects/pxxx_BPLIM/work_area/Submissions"*. Under the *Replications* directory, the directory *Rep001* will be automatically created. Please note that the number included in the directory name will be automatically updated if there are already other replications inside *Replications*. If running the first time, the app creates the folder *"/bplimext/projects/pxxx_BPLIM/work_area/Submissions/Replications/Rep001"*. The structure of the directory for our example is displayed in the image below (after the replication finishes):
 
 <p style="text-align:center;"><img src="https://user-images.githubusercontent.com/51088103/223743250-0ce592a5-0bdf-460a-b848-0e538600c304.PNG"  width="60%" height="30%"></p>
 
-The directories *data*, *Logs* and *results*, as well as the files they contain, are created by the code during the replication. The other directories and files were copied or created by the application. We can see that the dependencies, master script and definition file were copied to the replication area. The entire structure of the base path (first field of the replication) is copied to the replication area. But some additional files were also created, like *structure.json*,
+The directories *data*, *Logs* and *results* (as specified by the researcher), as well as the files they contain, are created by the code during the replication. The other directories and files were copied or created by the application. We can see that the dependencies, master script and definition file were copied to the replication area. The entire structure of the main path (first field of the replication) is copied to the replication area. But some additional files were also created, like *structure.json*,
 
 <p style="text-align:center;"><img src="https://user-images.githubusercontent.com/51088103/223743256-e1f273a8-eb5a-4f71-b776-2fa67a4b8047.PNG"  width="60%" height="30%"></p>
 
-which contains information of every field input for a specific replication. It serves not only to document your replication, providing the original paths for files and directories, but it is also useful in future replications. Imagine that user's second run uses the same files as the first, or additional dependencies for example. In that case, when the user launches the application, he does not need to fill every field again. The **Load from file** button launches a dialog box to choose a a **JSON** file:
+which contains information of every field input for a specific replication. It serves not only to document your replication, providing the original paths for files and directories, but it is also useful in future replications. Imagine that user's second run uses the same files as the first one, or additional dependencies for example. In that case, when the user launches the application, he does not need to fill every field again. The **Load from file** button launches a dialog box to choose a a **JSON** file:
 
 <p style="text-align:center;"><img src="https://user-images.githubusercontent.com/51088103/223743237-1c389012-96b3-4712-b129-5926bf65a177.PNG"  width="60%" height="30%"></p>
 
-After selecting the file *structure.json*, click "Open" and all the fields are automatically filled with the information of first replication:
+After selecting the file *structure.json*, click "Open" and all the fields are automatically filled with the information of the first replication:
 
 <p style="text-align:center;"><img src="https://user-images.githubusercontent.com/51088103/223743247-27176bf0-3601-4eac-8dfe-536a89fc525a.PNG"  width="60%" height="30%"></p>
 
-
-Other file created created by the application is *tree.txt*, which contains the tree structure of the replication area prior to running the replication:
+Another file created created by the application is *tree.txt*, which contains the tree structure of the replication area prior to running the replication:
 
 <p style="text-align:center;"><img src="https://user-images.githubusercontent.com/51088103/223744691-aa431f25-8667-43cf-91dd-39b768e19fc1.PNG"  width="60%" height="30%"></p>
 
@@ -230,7 +237,7 @@ Also, please note that every folder and sub-folders under the base path of the r
 ...
 ```
 
-The directories *data* and *results* will also be copied the replication area. So please make sure to capture any possible errors when creating your directory structure inside the scripts. In our case, and for Stata in particular, we would do the following in our master script:
+The directories *data* and *results* will also be copied to the replication area. So please make sure to capture any possible errors when creating your directory structure inside the scripts. In our case, and for Stata in particular, we would do the following in our master script:
 
 ```stata
 cd ${path_rep}
