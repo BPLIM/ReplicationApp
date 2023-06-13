@@ -113,7 +113,7 @@ The directories *data*, *Logs* and *results* (as specified by the researcher), a
 
 <p style="text-align:center;"><img src="https://user-images.githubusercontent.com/51088103/223743256-e1f273a8-eb5a-4f71-b776-2fa67a4b8047.PNG"  width="60%" height="30%"></p>
 
-which contains information of every field input for a specific replication. It serves not only to document your replication, providing the original paths for files and directories, but it is also useful in future replications. Imagine that user's second run uses the same files as the first one, or additional dependencies for example. In that case, when the user launches the application, he does not need to fill every field again. The **Load from file** button launches a dialog box to choose a a **JSON** file:
+which contains information of every field input for a specific replication. It serves not only to document your replication, providing the original paths for files and directories, but it is also useful in future replications. Imagine that the user's second run uses the same files as the first one, or additional dependencies for example. In that case, when the user launches the application, he/she does not need to fill in every field again. The **Load from file** button launches a dialog box to choose a a **JSON** file:
 
 <p style="text-align:center;"><img src="https://user-images.githubusercontent.com/51088103/223743237-1c389012-96b3-4712-b129-5926bf65a177.PNG"  width="60%" height="30%"></p>
 
@@ -121,7 +121,7 @@ After selecting the file *structure.json*, click "Open" and all the fields are a
 
 <p style="text-align:center;"><img src="https://user-images.githubusercontent.com/51088103/223743247-27176bf0-3601-4eac-8dfe-536a89fc525a.PNG"  width="60%" height="30%"></p>
 
-Another file created created by the application is *tree.txt*, which contains the tree structure of the replication area prior to running the replication:
+Another file created by the application is *tree.txt*, which contains the tree structure of the replication area prior to running the replication:
 
 <p style="text-align:center;"><img src="https://user-images.githubusercontent.com/51088103/223744691-aa431f25-8667-43cf-91dd-39b768e19fc1.PNG"  width="60%" height="30%"></p>
 
@@ -186,7 +186,7 @@ adopath ++ "/bplimext/projects/pxxx_BPLIM/tools"
 
 By placing the file next to the master script, Stata runs *profile.do* prior to running the master do-file, which we can use to define settings and globals. As you have probably noticed, the paths for globals `path_rep`, `path_source*` and command `adopath++` are based on the project and input fields of the application. 
 
-Researchers must use the globals defined in *profile.do* in their scripts when submitting a replication. It is **very important** that you specify globals related to data directories (**path_source**, **path_source_p** and **path_source_i**) when reading data, either modified or not. The globals for the type of modified dataset are also **very important**. Lets look at a snippet of the code used in this particular replication, namely on file *data_creation.do*:
+Researchers must use the globals defined in *profile.do* in their scripts when submitting a replication. It is **very important** that you use globals to identify data directories (**path_source**, **path_source_p** and **path_source_i**) when reading data, either modified or not. The globals for the type of modified dataset are also **very important**. Lets look at a snippet of the code used in this particular replication, namely on file *data_creation.do*:
 
 ```
 use "${path_source_p}/PM110_BBS_${M1}_MBNK_JAN2000DEC2020_JUN21_ASSET_V01.dta", clear
