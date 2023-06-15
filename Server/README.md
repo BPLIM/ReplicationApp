@@ -51,7 +51,7 @@ Categories=Application;
 
 In 4 and 5, replace *pxxx_BPLIM* with the name of the project.
 
-**Important Note**: researchers must use a container to run the analysis. When creating the container, is very important that the definition file contains the following 
+**Important Note**: researchers must use a container to run the analysis. When creating the container, it is very important that the definition file contains the following 
 instructions:
 
 **Stata**
