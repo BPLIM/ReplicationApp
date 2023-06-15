@@ -106,6 +106,6 @@ cd ~
 installPySimpleGui.sh
 ```
 
-After these steps, the researcher may click one the desktop file to launch the application.
+After these steps, the researcher may click on the desktop file to launch the application.
 
 
