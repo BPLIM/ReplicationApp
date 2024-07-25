@@ -268,16 +268,24 @@ class Replication(object):
 
         return os.path.normcase(folder) in foldersPath
     
-    def _createTreeFile(self) -> None:
-        """Creates tree file with the initial structure of 
-        the replication
+    def _createTreeFile(self, rootPath: str, outFile: str) -> None:
+        """Creates tree file with the initial structure inside 
+        the directory `rootPath`. The file is saved in the 
+        replication area
+
+        Parameters
+        ----------
+        rootPath : str
+            root path to be inspected (tree structure)
+        outFile : str
+            file with the tree structure saved
         """
-        treeList = list(tree(Path(self._replicationPath)))
+        treeList = list(tree(Path(rootPath)))
         numberFolders = len([item for item in treeList if item.endswith('/')])
         numberFiles = len([item for item in treeList if not item.endswith('/')])
-        treeFile = os.path.join(self._replicationPath, "tree.txt")
+        treeFile = os.path.join(self._replicationPath, outFile)
         with open(treeFile, 'w', encoding='utf-8') as fileOut:
-            fileOut.write('Root: ' + self._replicationPath + '\n')
+            fileOut.write('Root: ' + rootPath + '\n')
             for line in treeList:
                 fileOut.write(line + '\n')
             fileOut.write("\n")
@@ -317,7 +325,12 @@ class Replication(object):
             Replication process
         """
         self._prepareReplication()
-        self._createTreeFile()
+        self._createTreeFile(self._replicationPath, "tree.txt")
+        # List data files and save them in file "datafiles.txt"
+        dataPath = self._getInitialDataPaths(
+            mainFolderPath=self._mainFolderPath
+        )[0]
+        self._createTreeFile(dataPath, "datafiles.txt")
         head, tail = os.path.split(self._mainScript)
         return subprocess.Popen(
             [self._containerImage, head, tail],
