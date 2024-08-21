@@ -38,7 +38,6 @@ program drop _all
 set more off
 set rmsg on
 set matsize 10000
-set maxvar 10000
 set linesize 255
 capture log close
 *********************************************************
@@ -78,9 +77,6 @@ use "${{path_source_p}}/CRC_${{M3}}_MFRMBNK_2007_APR19_CO_V01.dta"
 * Dummy (SLB_D_YBNK_20102018_OCT20_QA1_V01.dta)
 use "${{path_source_p}}/SLB_${{M4}}_YBNK_20102018_OCT20_QA1_V01.dta"
 *********************************************************************/
-
-*** Ado PLUS directory ***
-sysdir set PLUS "/opt/stata{version}/ado/plus"
 
 **** Path for project specific ado files ****
 
