@@ -42,6 +42,7 @@ PY_SCRIPT_ABS_PATH, _ = os.path.split(os.path.abspath(__file__))
 APP_RELATIVE_WIDTH = 0.6
 APP_RELATIVE_HEIGHT = 0.5 if platform.system() == "Windows" else 0.4
 PROJECT_REGULAR_EXPRESSION = r'p(\d{3}|xxx)_[a-zA-Z]+'
+STATA_ERROR_REGEX = "^r\(([0-9]+)\);"
 APP_LOGO_ENCODED = convertFileToBase64(os.path.join(PY_SCRIPT_ABS_PATH, '.images/appLogo.gif'))
 WARNING_ICON_ENCODED = convertFileToBase64(os.path.join(PY_SCRIPT_ABS_PATH, '.images/warning.gif'))
 ERROR_ICON_ENCODED = convertFileToBase64(os.path.join(PY_SCRIPT_ABS_PATH, '.images/error.gif'))
@@ -309,7 +310,30 @@ while True:
         if process.poll() is None:
             pass
         else:
-            returnCode = process.returncode
+            out, err = process.communicate()
+            # the script is the last element of the process arguments
+            script = process.args[-1]
+            # Stata always return a code of 0, so we have to examine the log
+            if script.endswith(".do"):
+                log_file = script[:-3] + ".log"
+                with open(log_file, 'r') as f:
+                    last_line = f.readlines()[-1]
+                    error_match = re.search(STATA_ERROR_REGEX, last_line)
+                    if error_match:
+                        returnCode = 1
+                    else:
+                        returnCode = 0
+            else:
+                returnCode = process.returncode
+            print(f"\nProcess {process.pid} finished")
+            print(f"Return code: {returnCode}")
+            if returnCode == 1:
+                if script.endswith(".do"):
+                    print("Errors:", last_line)
+                else:
+                    print("Errors:", err)
+            print("Arguments: ", process.args)
+            print("Main script directory:", os.getcwd())
             running = False
             window['runStopApp'].update('Run')
             enableDisableFields(
