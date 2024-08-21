@@ -44,55 +44,14 @@ chmod -R 755 .replication
 Name=Run Replication
 Exec=cd "$(dirname %k)" && python3 .replication/replicationApp.py -p "$(dirname %k)";
 Icon=/bplimext/projects/pxxx_BPLIM/work_area/.replication/.images/appLogo.gif
-Terminal=false
+Terminal=true
 Type=Application
 Categories=Application;
 ```
 
 In 4 and 5, replace *pxxx_BPLIM* with the name of the project.
 
-**Important Note**: researchers must use a container to run the analysis. When creating the container, it is very important that the definition file contains the following 
-instructions:
-
-**Stata**
-```
-%runscript
-    if [ $# -ne 2 ]; then
-        echo "Please provide the main path and main script"
-        exit 1
-    fi
-    cd "$1"
-    log="$(basename -s .do "$2").log"
-    stata-mp -e do "$2"
-    if tail -1 "$log" | egrep "^r\([0-9]+\);"
-    then
-        exit 1
-    else
-        exit 0
-    fi
-```
-
-**Python**
-```
-%runscript
-    if [ $# -ne 2 ]; then
-        echo "Please provide the main path and main script"
-        exit 1
-    fi
-    cd "$1"
-    python3 "$2"
-```
-
-**R**
-```
-%runscript
-    if [ $# -ne 2 ]; then
-        echo "Please provide the main path and main script"
-        exit 1
-    fi
-    cd "$1"
-    Rscript "$2"
-```
+**Important Note**: researchers must use a container to run the analysis. 
 
 ### Researcher
 
