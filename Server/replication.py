@@ -1,6 +1,7 @@
 # run.py
 import PySimpleGUI as sg
 import os
+import shlex
 import shutil
 import re
 import json
@@ -316,6 +317,31 @@ class Replication(object):
 
         self._createConfigFile()
 
+    def _createProcessArgs(self, script: str) -> List[str]:
+        """Creates the arguments to run in the subprocess 
+        command. The command depends on the extension of the 
+        script
+
+        Parameters
+        ----------
+        script : str
+            main script for the replication
+
+        Returns
+        -------
+            List[str]: arguments for subprocess.Popen
+        """
+        if script.endswith(".py"):
+            program = "python3"
+        elif script.endswith(".R"):
+            program = "Rscript"
+        elif script.endswith(".do"):
+            program = "stata-mp -b do"
+
+        command = f"singularity exec {self._containerImage} {program} {script}"
+
+        return shlex.split(command)
+
     def run(self) -> subprocess.Popen:
         """Public method to run replication
 
@@ -331,9 +357,16 @@ class Replication(object):
             mainFolderPath=self._mainFolderPath
         )[0]
         self._createTreeFile(dataPath, "datafiles.txt")
-        head, tail = os.path.split(self._mainScript)
+        path, script = os.path.split(self._mainScript)
+        if path:
+            os.chdir(path)
+        
+        args = self._createProcessArgs(script)
+
         return subprocess.Popen(
-            [self._containerImage, head, tail],
+            args,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             preexec_fn=os.setsid
         )
 
