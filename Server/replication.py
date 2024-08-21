@@ -362,10 +362,9 @@ class Replication(object):
             os.chdir(path)
         
         args = self._createProcessArgs(script)
-
+        
         return subprocess.Popen(
             args,
-            stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             preexec_fn=os.setsid
         )
