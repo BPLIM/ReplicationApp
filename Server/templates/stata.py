@@ -9,6 +9,7 @@ def createProfile(
     pathSource: str = '',
     pathSourceModified: str = '',
     pathSourceIntermediate: str = '',
+    pathSourceExternal: str = '',
     toolsPaths: List[str] = []
 ) -> None:
     """Creates the Stata profile do-file
@@ -26,6 +27,8 @@ def createProfile(
         Path for modified data, by default ''
     pathSourceIntermediate : str
         Path for intermediate data, by default ''
+    pathSourceExternal : str
+        Path for external data, by default ''
     toolsPaths : List[str]
         List of paths for tools, by default []
     """  
@@ -54,6 +57,8 @@ global path_source "{pathSource}"
 global path_source_p "{pathSourceModified}"
 * Set the path for intermediate data source
 global path_source_i "{pathSourceIntermediate}"
+* Set the path for external data source
+global path_source_e "{pathSourceExternal}"
 
 **** Globals for type of modified dataset
 * Perturbed

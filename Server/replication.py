@@ -419,6 +419,7 @@ class Replication(object):
             pathSource=dataPaths[0],
             pathSourceModified=dataPaths[1],
             pathSourceIntermediate=dataPaths[2],
+            pathSourceExternal=dataPaths[3],
             toolsPaths=[
                 *self._externalTools,
                 *self._userDefinedTools
@@ -455,7 +456,8 @@ class Replication(object):
             return [
                 initialDataPath,
                 os.path.join(initialDataPath, 'modified'),
-                os.path.join(initialDataPath, 'intermediate')
+                os.path.join(initialDataPath, 'intermediate'),
+                os.path.join(initialDataPath, 'external')
             ]
         
     def writeReport(self, startTime: float) -> None:
