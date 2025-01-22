@@ -14,8 +14,8 @@ from templates.rlang import createConfigFile as createRConfigFile
 from utils.misc import tree
 
 # Gobals
-STATA_VERSION = 17
-PROJECT_REGULAR_EXPRESSION = r'p(\d{3}|xxx)_[a-zA-Z]+'
+STATA_VERSION = 18
+PROJECT_REGULAR_EXPRESSION = r'(p|r)(\d{3}|xxx)_[a-zA-Z]+'
 # Use commands (Stata): key -> command; value -> regular expression
 USE_COMMANDS = {
     "use": r"^use", 
@@ -353,9 +353,10 @@ class Replication(object):
         self._prepareReplication()
         self._createTreeFile(self._replicationPath, "tree.txt")
         # List data files and save them in file "datafiles.txt"
-        dataPath = self._getInitialDataPaths(
-            mainFolderPath=self._mainFolderPath
-        )[0]
+        dataPath = os.path.join(
+            self._getRootPath(mainFolderPath=self._mainFolderPath),
+            "initial_dataset"
+        )
         self._createTreeFile(dataPath, "datafiles.txt")
         path, script = os.path.split(self._mainScript)
         if path:
@@ -386,15 +387,13 @@ class Replication(object):
         outfile : str
             path to profile do
         """
-        dataPaths = self._getInitialDataPaths(
+        rootPath = self._getRootPath(
             mainFolderPath=self._mainFolderPath
         )
         createRConfigFile(
             replicationPath=self._replicationPath,
             outFile=outfile,
-            pathSource=dataPaths[0],
-            pathSourceModified=dataPaths[1],
-            pathSourceIntermediate=dataPaths[2],
+            rootPath=rootPath,
             toolsPaths=[
                 *self._externalTools,
                 *self._userDefinedTools
@@ -409,25 +408,22 @@ class Replication(object):
         outfile : str
             path to profile do
         """
-        dataPaths = self._getInitialDataPaths(
+        rootPath = self._getRootPath(
             mainFolderPath=self._mainFolderPath
         )
         createProfile(
             version=STATA_VERSION,
             replicationPath=self._replicationPath,
             outFile=outfile,
-            pathSource=dataPaths[0],
-            pathSourceModified=dataPaths[1],
-            pathSourceIntermediate=dataPaths[2],
-            pathSourceExternal=dataPaths[3],
+            rootPath=rootPath,
             toolsPaths=[
                 *self._externalTools,
                 *self._userDefinedTools
             ]
         )
 
-    def _getInitialDataPaths(self, mainFolderPath: str) -> List[str]:
-        """Gets the project data paths. This is specific to BPLIM
+    def _getRootPath(self, mainFolderPath: str) -> str:
+        """Gets the project root path. This is specific to BPLIM
 
         Parameters
         ----------
@@ -436,8 +432,8 @@ class Replication(object):
 
         Returns
         -------
-        List[str]
-            List of paths
+        str
+            Project's root path
         """
         try:
             projectName = re.search(
@@ -447,18 +443,8 @@ class Replication(object):
         except TypeError:
             raise ValueError('Project not found')
         else: 
-            initialDataPath = os.path.join(
-                '/bplimext', 
-                'projects', 
-                projectName, 
-                'initial_dataset'
-            )
-            return [
-                initialDataPath,
-                os.path.join(initialDataPath, 'modified'),
-                os.path.join(initialDataPath, 'intermediate'),
-                os.path.join(initialDataPath, 'external')
-            ]
+            return os.path.join('/bplimext', 'projects', projectName)
+
         
     def writeReport(self, startTime: float) -> None:
         """Writes a report on the details of the replication, namely the start and
