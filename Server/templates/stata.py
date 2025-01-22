@@ -1,16 +1,14 @@
 # Template for Stata 
-from typing import List
+from typing import List, Union
+import os
 
 
 def createProfile(
     version: int,
     replicationPath: str,
     outFile: str,
-    pathSource: str = '',
-    pathSourceModified: str = '',
-    pathSourceIntermediate: str = '',
-    pathSourceExternal: str = '',
-    toolsPaths: List[str] = []
+    rootPath: str,
+    toolsPaths: Union[List[str], None] = None
 ) -> None:
     """Creates the Stata profile do-file
     Parameters
@@ -21,17 +19,12 @@ def createProfile(
        Base path for replication
     outFile: str
        Path to profile
-    pathSource : str
-        Path for source data, by default ''
-    pathSourceModified : str
-        Path for modified data, by default ''
-    pathSourceIntermediate : str
-        Path for intermediate data, by default ''
-    pathSourceExternal : str
-        Path for external data, by default ''
+    rootPath : str
+        Path for project
     toolsPaths : List[str]
         List of paths for tools, by default []
     """  
+    replicationRelPath = os.path.relpath(replicationPath, rootPath)
     script = f"""*********************************************************
 *            Initialization
 *********************************************************
@@ -47,23 +40,25 @@ capture log close
 *               Define globals                          *
 *********************************************************  
 **** Path for replication ****
+* Root path
+global root_path "{rootPath}"
 * Base path for replications
-global path_rep "{replicationPath}"  
+global path_rep "${{root_path}}/{replicationRelPath}"  
 
 **** Paths for data ****
 * Set the path for non perturbed data source
-global path_source "{pathSource}"
+global path_source "${{root_path}}/initial_dataset"
 * Set the path for perturbed data source
-global path_source_p "{pathSourceModified}"
+global path_source_p "${{path_source}}/modified"
 * Set the path for intermediate data source
-global path_source_i "{pathSourceIntermediate}"
+global path_source_i "${{path_source}}/intermediate"
 * Set the path for external data source
-global path_source_e "{pathSourceExternal}"
+global path_source_e "${{path_source}}/external"
 
 **** Globals for type of modified dataset
 * Perturbed
 global M1 "P"
-* Shuffle
+* Shuffled
 global M2 "S"
 * Randomized
 global M3 "R"
@@ -88,7 +83,8 @@ use "${{path_source_p}}/SLB_${{M4}}_YBNK_20102018_OCT20_QA1_V01.dta"
 """
     if toolsPaths:
         for path in toolsPaths:
-            script += f'adopath ++ "{path}"\n'
+            relPath = os.path.relpath(path, rootPath)
+            script += f'adopath ++ "${{root_path}}/{relPath}"\n'
 
 
     with open(outFile, 'w') as fOut:
