@@ -316,7 +316,7 @@ while True:
             # Stata always return a code of 0, so we have to examine the log
             if script.endswith(".do"):
                 log_file = script[:-3] + ".log"
-                with open(log_file, 'r') as f:
+                with open(log_file, 'r', encoding="latin-1") as f:
                     last_line = f.readlines()[-1]
                     error_match = re.search(STATA_ERROR_REGEX, last_line)
                     if error_match:
