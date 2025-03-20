@@ -11,6 +11,7 @@ from datetime import datetime
 from typing import Dict, List, Union, Tuple, Generator, Any
 from templates.stata import createProfile
 from templates.rlang import createConfigFile as createRConfigFile
+from templates.pylang import createConfigFile as createPyConfigFile
 from utils.misc import tree
 
 # Gobals
@@ -378,6 +379,29 @@ class Replication(object):
             self._createStataProfile(os.path.join(head, 'profile.do'))
         elif self._mainScript.endswith(".R"):
             self._createRconfig(os.path.join(head, 'config.R'))
+        elif self._mainScript.endswith(".py"):
+            self._createPyconfig(os.path.join(head, 'config.py'))
+
+    def _createPyconfig(self, outfile: str) -> None:
+        """Create Python configuration file
+
+        Parameters
+        ----------
+        outfile : str
+            path to config file
+        """
+        rootPath = self._getRootPath(
+            mainFolderPath=self._mainFolderPath
+        )
+        createPyConfigFile(
+            replicationPath=self._replicationPath,
+            outFile=outfile,
+            rootPath=rootPath,
+            toolsPaths=[
+                *self._externalTools,
+                *self._userDefinedTools
+            ]
+        )
 
     def _createRconfig(self, outfile: str) -> None:
         """Create R configuration file
@@ -385,7 +409,7 @@ class Replication(object):
         Parameters
         ----------
         outfile : str
-            path to profile do
+            path to config
         """
         rootPath = self._getRootPath(
             mainFolderPath=self._mainFolderPath
