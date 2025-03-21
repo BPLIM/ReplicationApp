@@ -412,3 +412,138 @@ df <- as.data.frame(df_base)
 # save intermediate data
 write_dta(df, "../data/bbs_intermediate.dta")
 ```
+
+# Python 
+
+In **Python**, projects can be structured as packages. However, it's not clear that creating a full 
+**Python** package is the best for reproducibility, as it can become confusing and sometimes difficult for data editors and replicators to inspect the code. With that in mind, **BPLIM** created the 
+`bplim_utils` package to provide Stata-like logging behavior and script execution. You can check the [repository](https://github.com/BPLIM/bplim-utils) for a detailed explanation on how to use the package.
+
+Getting back to our example, if the researcher uses **Python**, the application creates a configuration named *config.py*, in the same directory as the main script. In the current example, the file would have the following content:
+
+```python
+from pathlib import Path
+
+print("Running configuration file")
+
+### Path for replication ###
+# Root path 
+ROOT_PATH = Path("/bplimext/projects/pxxx_BPLIM")
+# Base path for replications 
+PATH_REP = ROOT_PATH / "work_area/Submissions/Replications/Rep001"
+
+### Paths for data ###
+# Set the path for non perturbed data source
+PATH_SOURCE = ROOT_PATH / "initial_dataset"
+# Set the path for perturbed data source
+PATH_SOURCE_P = PATH_SOURCE / "modified"
+# Set the path for intermediate data source
+PATH_SOURCE_I = PATH_SOURCE / "intermediate"
+# Set the path for external data source
+PATH_SOURCE_E = PATH_SOURCE / "external"
+
+### Globals for type of modified dataset ###
+# Perturbed
+M1 = "P"
+# Shuffled
+M2 = "S"
+# Randomized
+M3 = "R"
+# Dummy
+M4 = "D"
+
+####################################################################### 
+######### Example: using non-modified and modified data sets ##########
+# import pandas as pd
+# Anonymized (CB_A_YFRM_2010_JUN21_ROSTO_V01.dta)
+# pd.read_stata(PATH_SOURCE / "CB_A_YFRM_2010_JUN21_ROSTO_V01.dta")
+# Perturbed (CRC_P_MFRM_2010_APR19_COBR_V01.dta)
+# pd.read_stata(PATH_SOURCE_P / f"CRC_{M1}_MFRM_2010_APR19_COBR_V01.dta")
+# Shuffle (PE056_S_rejected_applications.dta)
+# pd.read_stata(PATH_SOURCE_P / f"PE056_{M2}_rejected_applications.dta")
+# Randomized (CRC_R_MFRMBNK_2007_APR19_CO_V01.dta)
+# pd.read_stata(PATH_SOURCE_P / f"CRC_{M3}_MFRMBNK_2007_APR19_CO_V01.dta")
+# Dummy (SLB_D_YBNK_20102018_OCT20_QA1_V01.dta)
+# pd.read_stata(PATH_SOURCE_P / f"SLB_{M4}_YBNK_20102018_OCT20_QA1_V01.dta")
+#######################################################################
+
+print("Configuration settings defined")
+```
+
+In the master script, the user must import globals from the config file and also 
+run the config as script so that globals are available to other scripts that might 
+get called from the master file:
+
+
+```python
+import os
+from config import *
+
+os.chdir(PATH_REP)
+
+run_script('config.py')
+```
+
+Again, if your master script is not directly inside **PATH_REP**, but in folder below named *scripts*, you should position yourself that directory, by adding a line to the previous snippet:
+
+```python
+import os
+from bplim_utils import run_script
+from config import *
+
+os.chdir(PATH_REP)
+
+run_script('config.py')
+
+os.chdir("scripts")
+```
+
+So, the **Stata** and **R** examples would look like the following in **Python** (using absolute and relative paths):
+
+**master.py**
+
+```python
+import os
+from bplim_utils import run_script
+
+os.chdir(PATH_REP)
+
+path_data = PATH_REP / "data"
+path_results = PATH_REP / "results"
+
+os.makedirs(path_data, exist_ok=True)
+os.makedirs(path_results, exist_ok=True)
+
+os.chdir("do_files")
+run_script("data_creation.py")
+```
+
+**data_creation.py** - absolute paths
+
+```python
+import pandas as pd
+
+df = pd.read_stata(PATH_SOURCE_P / f"PM110_BBS_{M1}_MBNK_JAN2000DEC2020_JUN21_ASSET_V01.dta")
+
+####
+# code to modify data
+#####
+
+# save intermediate data
+df.to_stata(path_data / "bbs_intermediate.dta")
+```
+
+**data_creation.py** - relative paths
+
+```python
+import pandas as pd
+
+df = pd.read_stata(PATH_SOURCE_P / f"PM110_BBS_{M1}_MBNK_JAN2000DEC2020_JUN21_ASSET_V01.dta")
+
+####
+# code to modify data
+#####
+
+# save intermediate data
+df.to_stata("../data/bbs_intermediate.dta")
+```
