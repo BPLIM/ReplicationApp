@@ -130,31 +130,34 @@ Finally, the last file that the application creates is the configuration file to
 
 ```stata
 *********************************************************
-*            Initialization
+*            Initialization                              
 *********************************************************
-version 17
+version 18
 clear all
 program drop _all
 set more off
 set rmsg on
 set matsize 10000
-set maxvar 10000
 set linesize 255
 capture log close
 *********************************************************
 *               Define globals                          *
-*********************************************************  
+********************************************************* 
 **** Path for replication ****
+* Root path
+global root_path "/bplimext/projects/pxxx_BPLIM"
 * Base path for replications
-global path_rep "/bplimext/projects/pxxx_BPLIM/work_area/Submissions/Replications/Rep001"  
+global path_rep "${root_path}/work_area/Submissions/Replications/Rep001"
 
 **** Paths for data ****
 * Set the path for non perturbed data source
-global path_source "/bplimext/projects/pxxx_BPLIM/initial_dataset"
+global path_source "${root_path}/initial_dataset"
 * Set the path for perturbed data source
-global path_source_p "/bplimext/projects/pxxx_BPLIM/initial_dataset/modified"
+global path_source_p "${path_source}/modified"
 * Set the path for intermediate data source
-global path_source_i "/bplimext/projects/pxxx_BPLIM/initial_dataset/intermediate"
+global path_source_i "${path_source}/intermediate"
+* Set the path for external data source
+global path_source_e "${path_source}/external"
 
 **** Globals for type of modified dataset
 * Perturbed
@@ -165,7 +168,7 @@ global M2 "S"
 global M3 "R"
 * Dummy 
 global M4 "D"
-/********************************************************************* 
+/*********************************************************************
 ********* Example: using non-modified and modified data sets *********
 * Anonymized (CB_A_YFRM_2010_JUN21_ROSTO_V01.dta)
 use "${path_source}/CB_A_YFRM_2010_JUN21_ROSTO_V01.dta"
@@ -180,8 +183,7 @@ use "${path_source_p}/SLB_${M4}_YBNK_20102018_OCT20_QA1_V01.dta"
 *********************************************************************/
 
 **** Path for project specific ado files ****
-
-adopath ++ "/bplimext/projects/pxxx_BPLIM/tools"
+adopath ++ "${root_path}/tools"
 ```
 
 By placing the file next to the master script, Stata runs *profile.do* prior to running the master do-file, which we can use to define settings and globals. As you have probably noticed, the paths for globals `path_rep`, `path_source*` and command `adopath++` are based on the project and input fields of the application. 
