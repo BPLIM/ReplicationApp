@@ -298,6 +298,7 @@ save "../data/bbs_intermediate", replace
 
 Whether the researcher uses relative paths or absolute paths, BPLIM staff only needs to change the file *profile.do* in order to run the replication with other settings. In the case of absolute paths, they must always be specified in terms of previously defined globals, at least **path_rep**. 
 
+### R
 
 If the researcher uses **R** instead, the application creates a configuration named *config.R*, in the same directory as the main script. In our current example, the file would have the following content:
 
@@ -305,17 +306,19 @@ If the researcher uses **R** instead, the application creates a configuration na
 print("## Running config.R file ##")
 sessionInfo()
 
-##### Path for replication #####
+# Root path
+root_path <- "/bplimext/projects/pxxx_BPLIM/"
 # Base path for replications
-path_rep <- "/bplimext/projects/pxxx_BPLIM/work_area/Submissions/Replications/Rep001"  
+path_rep <- file.path(root_path, "work_area/Submissions/Replications/Rep001")  
 
 #### Paths for data ####
-# Set the path for non perturbed data source
-path_source <- "/bplimext/projects/pxxx_BPLIM/initial_dataset"
-# Set the path for perturbed data source
-path_source_p <- "/bplimext/projects/pxxx_BPLIM/initial_dataset/modified"
-# Set the path for intermediate data source
-path_source_i <- "/bplimext/projects/pxxx_BPLIM/initial_dataset/intermediate"
+paths <- list(
+    source = file.path(root_path, "initial_dataset"),
+    source_p = file.path(root_path, "initial_dataset", "modified"),
+    source_i = file.path(root_path, "initial_dataset", "intermediate"),
+    source_e = file.path(root_path, "initial_dataset", "external"),
+    tools = file.path(root_path, "tools")
+)
 
 # Globals for type of modified dataset
 # Perturbed
@@ -327,31 +330,19 @@ M3 <- "R"
 # Dummy 
 M4 <- "D"
 
+#### Example: using non-modified and modified datasets ####
+# anonymized <- file.path(paths$source, "CB_A_YFRM_2010_JUN21_ROSTO_V01.dta"),
+# perturbed <- file.path(paths$source_p, sprintf("CRC_%s_MFRM_2010_APR19_COBR_V01.dta", M1),
+# shuffle <- file.path(paths$source_p, sprintf("PE056_%s_rejected_applications.dta", M2),
+# randomized <- file.path(paths$source_p, sprintf("CRC_%s_MFRMBNK_2007_APR19_CO_V01.dta", M3),
+# dummy <- file.path(paths$source_p, sprintf("SLB_%s_YBNK_20102018_OCT20_QA1_V01.dta", M4)
+# Example reading the perturbed dataset
+# data <- read_dta(perturbed)
 
-################### Example: using non-modified and modified data sets #####################
-# Anonymized (CB_A_YFRM_2010_JUN21_ROSTO_V01.dta)
-# dataA <- stringr::str_interp("${path_source}/CB_A_YFRM_2010_JUN21_ROSTO_V01.dta")
-#
-# Perturbed (CRC_P_MFRM_2010_APR19_COBR_V01.dta)
-# dataP <- stringr::str_interp("${path_source_p}/CRC_${M1}_MFRM_2010_APR19_COBR_V01.dta")
-#
-# Shuffle (PE056_S_rejected_applications.dta)
-# dataS <- stringr::str_interp("${path_source_p}/PE056_${M2}_rejected_applications.dta")
-#
-# Randomized (CRC_R_MFRMBNK_2007_APR19_CO_V01.dta)
-# dataR <- stringr::str_interp("${path_source_p}/CRC_${M3}_MFRMBNK_2007_APR19_CO_V01.dta")
-#
-# Dummy (SLB_D_YBNK_20102018_OCT20_QA1_V01.dta)
-# dataD <- stringr::str_interp("${path_source_p}/SLB_${M4}_YBNK_20102018_OCT20_QA1_V01.dta")
-#############################################################################################
+# Adding the tools path as a library path
+.libPaths(c(paths$tools, .libPaths()))
 
-# User Defined libraries
-additionalPaths <- 
-  c(
-    ...
-  )
-.libPaths(additionalPaths)
-rm(additionalPaths)
+print("## Finish running config.R file ##")
 ```
 
 Then, in the master script, one needs to run the configuration file, as displayed in the following code snippet:
@@ -378,8 +369,8 @@ So, the **Stata** example would look like the following in **R** (using absolute
 ```R
 setwd(path_rep)
 
-path_data <- stringr::str_interp("${path_rep}/data")
-path_results <- stringr::str_interp("${path_rep}/results")
+path_data <- file.path(path_rep, "data")
+path_results <- file.path(path_rep, "results")
 
 dir.create(path_data)
 dir.create(path_results)
@@ -393,7 +384,7 @@ source("data_creation.R")
 ```R
 library(haven)
 
-dataP <- stringr::str_interp("${path_source_p}/PM110_BBS_${M1}_MBNK_JAN2000DEC2020_JUN21_ASSET_V01.dta")
+dataP <- file.path(paths$source_p, sprintf("PM110_BBS_%s_MBNK_JAN2000DEC2020_JUN21_ASSET_V01.dta", M1))
 df_base <- read_stata(dataP) 
 df <- as.data.frame(df_base)
 
@@ -410,7 +401,7 @@ write_dta(df, file.path(path_data, "bbs_intermediate.dta"))
 ```R
 library(haven)
 
-dataP <- stringr::str_interp("${path_source_p}/PM110_BBS_${M1}_MBNK_JAN2000DEC2020_JUN21_ASSET_V01.dta")
+dataP <- file.path(paths$source_p, sprintf("PM110_BBS_%s_MBNK_JAN2000DEC2020_JUN21_ASSET_V01.dta", M1))
 df_base <- read_stata(dataP) 
 df <- as.data.frame(df_base)
 
