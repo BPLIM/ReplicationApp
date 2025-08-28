@@ -317,7 +317,8 @@ while True:
             if script.endswith(".do"):
                 log_file = script[:-3] + ".log"
                 with open(log_file, 'r', encoding="latin-1") as f:
-                    last_line = f.readlines()[-1]
+                    last_lines = f.readlines()[-10:]
+                    last_line = last_lines[-1]
                     error_match = re.search(STATA_ERROR_REGEX, last_line)
                     if error_match:
                         returnCode = 1
@@ -329,9 +330,10 @@ while True:
             print(f"Return code: {returnCode}")
             if returnCode == 1:
                 if script.endswith(".do"):
-                    print("Errors:", last_line)
+                    errors = last_lines
                 else:
-                    print("Errors:", err)
+                    errors = err.decode().split("\n")
+                print("Errors:", errors)
             print("Arguments: ", process.args)
             print("Main script directory:", os.getcwd())
             running = False
@@ -345,5 +347,7 @@ while True:
             window['return'].update(f'Return code: {returnCode}')
             if returnCode == 0:
                 replication.writeReport(startTime)
+            else:
+                replication.writeErrorReport(startTime, errors)
 
 window.close()
