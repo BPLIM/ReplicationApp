@@ -368,6 +368,7 @@ class Replication(object):
         return subprocess.Popen(
             args,
             stderr=subprocess.PIPE,
+            stdout=subprocess.PIPE,
             preexec_fn=os.setsid
         )
 
@@ -468,6 +469,25 @@ class Replication(object):
             raise ValueError('Project not found')
         else: 
             return os.path.join('/bplimext', 'projects', projectName)
+        
+    def writeErrorReport(self, startTime: float, errors: List[str]) -> None:
+        """Writes an error report on the details of the replication, namely the start and
+        finish times, the process exit code
+
+        Parameters
+        ----------
+        startTime : float
+            Process start time      
+        """
+        startTime = datetime.fromtimestamp(startTime)
+        reportPath = os.path.join(self._replicationPath, '.report.txt') 
+        with open(reportPath, 'w') as report:
+            report.write("Started  : " + startTime.strftime('%Y-%m-%d %H:%M:%S') + "\n")
+            report.write("Finished : " + datetime.now().strftime('%Y-%m-%d %H:%M:%S') + "\n")
+            report.write("Exit code: 1\n\n")
+            report.write("Errors: \n\n")
+            for line in errors:
+                report.write(line + "\n")
 
         
     def writeReport(self, startTime: float) -> None:
