@@ -488,7 +488,6 @@ class Replication(object):
             report.write("Errors: \n\n")
             for line in errors:
                 report.write(line + "\n")
-
         
     def writeReport(self, startTime: float) -> None:
         """Writes a report on the details of the replication, namely the start and
